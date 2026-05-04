@@ -9,6 +9,7 @@ APPROVED_PUBLIC_SOURCES = {
     "news.google.com",
     "www.reddit.com",
     "reddit.com",
+    "web-production-d6ffa.up.railway.app",
 }
 
 PROHIBITED_DATA_TYPES = {
