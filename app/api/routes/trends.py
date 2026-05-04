@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.services.trend_ingestion import fetch_google_news, fetch_reddit
 from app.agents.deepseek_etl_agent import DeepSeekETLAgent
 from app.agents.qwen_analyst_agent import QwenAnalystAgent
+from app.core.public_domain_policy import validate_public_records
 
 router = APIRouter(prefix="/trends", tags=["trends"])
 
@@ -12,7 +13,7 @@ analyst = QwenAnalystAgent()
 
 @router.get("/scan")
 def scan_trends(query: str):
-    # 1. Ingest public data
+    # 1. Ingest public data only
     news = fetch_google_news(query)
     reddit = fetch_reddit(query)
 
@@ -23,6 +24,7 @@ def scan_trends(query: str):
             "source": "google_news",
             "source_url": "https://news.google.com",
             "raw_text": n,
+            "data_type": "public_content",
         })
 
     for r in reddit:
@@ -30,7 +32,11 @@ def scan_trends(query: str):
             "source": "reddit",
             "source_url": "https://reddit.com",
             "raw_text": r,
+            "data_type": "public_content",
         })
+
+    # Enforce public-domain-only policy
+    validate_public_records(raw_records)
 
     # 2. DeepSeek ETL (strict CV 1.1)
     normalized = [etl_agent.normalize_public_signal(r) for r in raw_records]
@@ -51,4 +57,5 @@ def scan_trends(query: str):
         "records_processed": len(normalized),
         "validation": validation,
         "analysis": report,
+        "policy": "public_domain_enforced",
     }
