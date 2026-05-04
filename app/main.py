@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 
+from app.api.routes.trends import router as trends_router
+
 app = FastAPI(title="External Business Intel API")
+app.include_router(trends_router)
+
 
 @app.get("/")
 def root():
-    return {"status": "running", "system": "external-business-intel"}
+    return {"status": "running", "system": "external-business-intel", "mode": "on-demand"}
+
 
 @app.get("/health")
 def health():
