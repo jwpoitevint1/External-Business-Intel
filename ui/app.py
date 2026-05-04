@@ -1,7 +1,9 @@
+import os
+
 import streamlit as st
 import requests
 
-API = st.secrets.get("API_URL", "https://web-production-d6ffa.up.railway.app")
+API = os.getenv("API_URL", st.secrets.get("API_URL", "https://web-production-d6ffa.up.railway.app"))
 
 st.set_page_config(page_title="External Business Intel", layout="wide")
 
