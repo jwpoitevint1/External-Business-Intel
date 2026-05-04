@@ -9,14 +9,11 @@ def normalize_database_url(url: str) -> str:
     return url
 
 
-# Prefer Railway/host environment variable.
-# Fallback points to the Neon production database shown during deployment setup.
-DATABASE_URL = normalize_database_url(
-    os.getenv(
-        "DATABASE_URL",
-        "postgresql+psycopg://neondb_owner:CHANGE_ME@ep-dawn-credit-am7vzvhd-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
-    )
-)
+raw_database_url = os.getenv("DATABASE_URL")
+if not raw_database_url:
+    raise RuntimeError("DATABASE_URL environment variable is required.")
+
+DATABASE_URL = normalize_database_url(raw_database_url)
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
