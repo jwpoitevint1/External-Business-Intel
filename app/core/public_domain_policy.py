@@ -7,8 +7,32 @@ class PublicDomainPolicyError(ValueError):
 
 APPROVED_PUBLIC_SOURCES = {
     "news.google.com",
-    "www.reddit.com",
+    "msnbc.com",
+    "www.msnbc.com",
+    "cnn.com",
+    "www.cnn.com",
+    "bbc.com",
+    "www.bbc.com",
+    "reuters.com",
+    "www.reuters.com",
+    "apnews.com",
+    "www.apnews.com",
+    "nytimes.com",
+    "www.nytimes.com",
     "reddit.com",
+    "www.reddit.com",
+    "x.com",
+    "www.x.com",
+    "facebook.com",
+    "www.facebook.com",
+    "instagram.com",
+    "www.instagram.com",
+    "tiktok.com",
+    "www.tiktok.com",
+    "snapchat.com",
+    "www.snapchat.com",
+    "youtube.com",
+    "www.youtube.com",
     "web-production-d6ffa.up.railway.app",
 }
 
@@ -23,7 +47,27 @@ PROHIBITED_DATA_TYPES = {
     "precise_location_data",
     "children_data",
     "scraped_personal_identifiers",
+    "adult_content",
+    "pornographic_content",
+    "explicit_content",
 }
+
+PROHIBITED_MARKERS = [
+    "ssn",
+    "social security number",
+    "credit card",
+    "password",
+    "private message",
+    "dm from",
+    "direct message",
+    "non-public",
+    "login required",
+    "adult content",
+    "adult site",
+    "pornographic",
+    "explicit content",
+    "explicit adult",
+]
 
 
 def assert_public_source(source_url: str) -> None:
@@ -45,16 +89,7 @@ def assert_no_prohibited_data(record: dict) -> None:
         )
 
     text = str(record.get("raw_text", "")).lower()
-    prohibited_markers = [
-        "ssn",
-        "social security number",
-        "credit card",
-        "password",
-        "private message",
-        "dm from",
-    ]
-
-    for marker in prohibited_markers:
+    for marker in PROHIBITED_MARKERS:
         if marker in text:
             raise PublicDomainPolicyError(
                 f"Public-domain policy violation: detected prohibited marker '{marker}'."
