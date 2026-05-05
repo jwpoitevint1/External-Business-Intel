@@ -33,6 +33,33 @@ Applied to this system:
 - Qwen does not mutate, rewrite, normalize, extract, load, or delete records.
 - Qwen must return structured outputs with evidence, confidence, score, implication, and recommended action.
 
+## System Flow (Governed Execution)
+
+```text
+[ Public-Domain Sources ]
+            ↓
+[ Policy Validation Layer ]
+ (blocks non-public / restricted data)
+            ↓
+[ Deterministic ETL (DeepSeek) ]
+ (normalize → dedupe → validate → structure)
+            ↓
+[ Constrained Qwen Analysis ]
+ (scoped role + evidence-bound output)
+            ↓
+[ Validation / Fallback Layer ]
+ (reject invalid → fallback deterministic if needed)
+            ↓
+[ Neon Storage ]
+ (structured, auditable records)
+            ↓
+[ UI / API Review Layer ]
+ (Streamlit / endpoints)
+            ↓
+[ Human Decision (HITL) ]
+ (approve / reject / act)
+```
+
 Current governed chain:
 
 ```text
