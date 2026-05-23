@@ -12,6 +12,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 query = os.getenv("TEST_QUERY", "social media marketing trends")
 mode = os.getenv("TEST_MODE", "offline")
+run_timestamp = datetime.now(timezone.utc).isoformat()
 
 qwen = QwenAnalystAgent()
 
@@ -88,7 +89,12 @@ analysis = qwen.analyze_trends(deduped_records)
 payload = {
     "query": query,
     "mode": mode,
+    "run_timestamp": run_timestamp,
+    "raw_records_pulled": len(raw_records),
     "records_processed": len(deduped_records),
+    "raw_records": raw_records,
+    "normalized_records": normalized_records,
+    "deduped_records": deduped_records,
     "preprocessing": {
         "agent": "deterministic_preprocessor",
         "policy": "public-domain validation + normalization + dedupe before Qwen analysis",
@@ -97,7 +103,64 @@ payload = {
     "analysis": analysis,
 }
 
-output_file = OUTPUT_DIR / "qwen_analysis_test_output.json"
-output_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+json_output_file = OUTPUT_DIR / "qwen_analysis_test_output.json"
+json_output_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+review_lines = [
+    "# Qwen Analysis Test Review",
+    "",
+    f"- Query: {query}",
+    f"- Mode: {mode}",
+    f"- Run timestamp UTC: {run_timestamp}",
+    f"- Raw records pulled: {len(raw_records)}",
+    f"- Records after dedupe: {len(deduped_records)}",
+    "",
+    "## Raw Records Pulled",
+]
+
+for idx, record in enumerate(raw_records, start=1):
+    review_lines.extend(
+        [
+            "",
+            f"### Raw Record {idx}",
+            f"- Source: {record.get('source')}",
+            f"- Source URL: {record.get('source_url')}",
+            "",
+            "```text",
+            str(record.get("raw_text", "")),
+            "```",
+        ]
+    )
+
+review_lines.extend(["", "## Normalized Records"])
+for idx, record in enumerate(deduped_records, start=1):
+    review_lines.extend(
+        [
+            "",
+            f"### Normalized Record {idx}",
+            f"- Source: {record.get('source')}",
+            f"- Source URL: {record.get('source_url')}",
+            f"- Observed At: {record.get('observed_at')}",
+            f"- Keywords: {', '.join(record.get('keywords', []))}",
+            "",
+            "```text",
+            str(record.get("clean_text", "")),
+            "```",
+        ]
+    )
+
+review_lines.extend(
+    [
+        "",
+        "## Qwen Analysis Output",
+        "",
+        "```json",
+        json.dumps(analysis, indent=2),
+        "```",
+    ]
+)
+
+markdown_output_file = OUTPUT_DIR / "qwen_analysis_review.md"
+markdown_output_file.write_text("\n".join(review_lines), encoding="utf-8")
 
 print(json.dumps(payload, indent=2))
