@@ -1,0 +1,60 @@
+name: DeepSeek ETL Button Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "Public-domain business-intel query to test"
+        required: true
+        default: "social media marketing trends"
+      mode:
+        description: "Run mode"
+        required: true
+        default: "offline"
+        type: choice
+        options:
+          - offline
+          - live
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  deepseek-etl-test:
+    name: Run DeepSeek ETL test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run DeepSeek ETL harness
+        env:
+          TEST_QUERY: ${{ inputs.query }}
+          TEST_MODE: ${{ inputs.mode }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          QWEN_MODEL: ${{ vars.QWEN_MODEL }}
+          QWEN_BASE_URL: ${{ vars.QWEN_BASE_URL }}
+        run: |
+          python scripts/run_deepseek_etl_test.py
+
+      - name: Upload ETL test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-etl-test-output
+          path: artifacts/deepseek_etl_test_output.json
+          if-no-files-found: error
