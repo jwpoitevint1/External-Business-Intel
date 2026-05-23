@@ -1,4 +1,4 @@
-name: Qwen ETL Button Test
+name: Qwen Analysis Button Test
 
 on:
   workflow_dispatch:
@@ -24,8 +24,8 @@ env:
   PYTHONPATH: ${{ github.workspace }}
 
 jobs:
-  qwen-etl-test:
-    name: Run Qwen ETL test
+  qwen-analysis-test:
+    name: Run Qwen analysis test
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +42,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Qwen ETL harness
+      - name: Run deterministic preprocessing and Qwen analysis harness
         env:
           TEST_QUERY: ${{ inputs.query }}
           TEST_MODE: ${{ inputs.mode }}
@@ -53,9 +53,9 @@ jobs:
         run: |
           python scripts/run_qwen_etl_test.py
 
-      - name: Upload Qwen ETL test artifact
+      - name: Upload Qwen analysis test artifact
         uses: actions/upload-artifact@v4
         with:
-          name: qwen-etl-test-output
-          path: artifacts/qwen_etl_test_output.json
+          name: qwen-analysis-test-output
+          path: artifacts/qwen_analysis_test_output.json
           if-no-files-found: error
