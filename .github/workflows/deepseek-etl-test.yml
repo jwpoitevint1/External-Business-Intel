@@ -1,4 +1,4 @@
-name: DeepSeek ETL Button Test
+name: Qwen ETL Button Test
 
 on:
   workflow_dispatch:
@@ -23,8 +23,8 @@ env:
   PYTHONUNBUFFERED: "1"
 
 jobs:
-  deepseek-etl-test:
-    name: Run DeepSeek ETL test
+  qwen-etl-test:
+    name: Run Qwen ETL test
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run DeepSeek ETL harness
+      - name: Run Qwen ETL harness
         env:
           TEST_QUERY: ${{ inputs.query }}
           TEST_MODE: ${{ inputs.mode }}
@@ -50,11 +50,11 @@ jobs:
           QWEN_MODEL: ${{ vars.QWEN_MODEL }}
           QWEN_BASE_URL: ${{ vars.QWEN_BASE_URL }}
         run: |
-          python scripts/run_deepseek_etl_test.py
+          python scripts/run_qwen_etl_test.py
 
-      - name: Upload ETL test artifact
+      - name: Upload Qwen ETL test artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deepseek-etl-test-output
-          path: artifacts/deepseek_etl_test_output.json
+          name: qwen-etl-test-output
+          path: artifacts/qwen_etl_test_output.json
           if-no-files-found: error
